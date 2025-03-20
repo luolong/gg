@@ -3,17 +3,29 @@
     import Icon from "../controls/Icon.svelte";
     import ModalDialog from "./ModalDialog.svelte";
 
-    export let title: string;
-    export let severe: boolean = false;
-    export let onClose: (() => void) | null = null;
+    interface Props {
+        title: string;
+        severe?: boolean;
+        onClose?: (() => void) | null;
+        children?: import('svelte').Snippet;
+    }
+
+    let {
+        title,
+        severe = false,
+        onClose = null,
+        children
+    }: Props = $props();
 </script>
 
 <ModalDialog {title} error={severe} on:cancel={onClose}>
-    <slot />
+    {@render children?.()}
 
-    <svelte:fragment slot="commands">
-        {#if onClose}
-            <ActionWidget tip="close dialog" safe onClick={onClose}>OK</ActionWidget>
-        {/if}
-    </svelte:fragment>
+    {#snippet commands()}
+
+            {#if onClose}
+                <ActionWidget tip="close dialog" safe onClick={onClose}>OK</ActionWidget>
+            {/if}
+
+    {/snippet}
 </ModalDialog>

@@ -1,4 +1,6 @@
 <script lang="ts">
+    import { run as run_1 } from 'svelte/legacy';
+
     import ActionWidget from "../controls/ActionWidget.svelte";
     import Icon from "../controls/Icon.svelte";
     import IdSpan from "../controls/IdSpan.svelte";
@@ -12,12 +14,15 @@
     import { currentSource, currentTarget, hasModal, repoConfigEvent, repoStatusEvent } from "../stores";
     import BranchSpan from "../controls/BranchSpan.svelte";
 
-    export let target: boolean;
+    interface Props {
+        target: boolean;
+    }
 
-    let dropHint: RichHint | null = null;
-    let maybe = false;
+    let { target }: Props = $props();
 
-    $: setDropHint($currentSource, $currentTarget);
+    let dropHint: RichHint | null = $state(null);
+    let maybe = $state(false);
+
 
     function setDropHint(source: Operand | null, target: Operand | null) {
         maybe = false;
@@ -55,6 +60,9 @@
     function onFetch(remote: string) {
         mutate<GitFetch>("git_fetch", { type: "AllBookmarks", remote_name: remote });
     }
+    run_1(() => {
+        setDropHint($currentSource, $currentTarget);
+    });
 </script>
 
 {#if !dropHint}

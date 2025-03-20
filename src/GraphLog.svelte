@@ -1,6 +1,6 @@
 <!-- Renders commit rows with an SVG graph drawn over them, virtualising the ui to allow for long graphs -->
 
-<script context="module" lang="ts">
+<script module lang="ts">
     import type { LogLine } from "./messages/LogLine.js";
 
     export type EnhancedLine = LogLine & { key: number; parent: RevHeader; child: RevHeader };
@@ -22,10 +22,21 @@
 
     const columnWidth = 18;
     const rowHeight = 30;
-    export let containerHeight: number;
-    export let containerWidth: number;
-    export let scrollTop: number;
-    export let rows: (EnhancedRow | null)[];
+    interface Props {
+        containerHeight: number;
+        containerWidth: number;
+        scrollTop: number;
+        rows: (EnhancedRow | null)[];
+        children?: import('svelte').Snippet<[any]>;
+    }
+
+    let {
+        containerHeight,
+        containerWidth,
+        scrollTop,
+        rows,
+        children
+    }: Props = $props();
 
     function sliceArray(arr: (EnhancedRow | null)[], start: number, end: number) {
         arr = arr.slice(start, end);
@@ -73,15 +84,15 @@
             });
     }
 
-    $: graphHeight = Math.max(containerHeight, rows.length * rowHeight);
-    $: visibleRows = Math.ceil(containerHeight / rowHeight) + 1;
-    $: startIndex = Math.floor(scrollTop / rowHeight);
-    $: endIndex = startIndex + visibleRows;
-    $: overlap = startIndex % visibleRows;
-    $: visibleSlice = {
+    let graphHeight = $derived(Math.max(containerHeight, rows.length * rowHeight));
+    let visibleRows = $derived(Math.ceil(containerHeight / rowHeight) + 1);
+    let startIndex = $derived(Math.floor(scrollTop / rowHeight));
+    let endIndex = $derived(startIndex + visibleRows);
+    let overlap = $derived(startIndex % visibleRows);
+    let visibleSlice = $derived({
         rows: shiftArray(sliceArray(rows, startIndex, endIndex), overlap),
         keys: new Set<number>(),
-    };
+    });
 </script>
 
 <svg class="graph" style="width: 100%; height: {graphHeight}px;">
@@ -93,7 +104,7 @@
                     height={rowHeight}
                     width={containerWidth - (row?.location[0] ?? 0) * columnWidth}
                     style="--leftpad: {(row?.padding ?? 0) * columnWidth + columnWidth + 6}px;">
-                    <slot {row} />
+                    {@render children?.({ row, })}
                 </foreignObject>
 
                 {#if row}

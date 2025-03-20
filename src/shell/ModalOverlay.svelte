@@ -1,6 +1,11 @@
 <script lang="ts">
     import { onMount } from "svelte";
     import { hasModal } from "../stores";
+    interface Props {
+        children?: import('svelte').Snippet;
+    }
+
+    let { children }: Props = $props();
 
     onMount(() => {
         $hasModal = true;
@@ -11,7 +16,7 @@
 </script>
 
 <div id="overlay">
-    <slot />
+    {@render children?.()}
 </div>
 
 <style>

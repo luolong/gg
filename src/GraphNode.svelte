@@ -1,11 +1,19 @@
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import type { RevHeader } from "./messages/RevHeader";
     import { currentContext } from "./stores.js";
 
-    export let header: RevHeader;
+    interface Props {
+        header: RevHeader;
+    }
 
-    let context = false;
-    $: context = $currentContext?.type == "Revision" && header == $currentContext.header;
+    let { header }: Props = $props();
+
+    let context = $state(false);
+    run(() => {
+        context = $currentContext?.type == "Revision" && header == $currentContext.header;
+    });
 </script>
 
 {#if header.is_immutable}

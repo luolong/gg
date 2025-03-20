@@ -4,6 +4,8 @@ A drop target for direct-manipulation objects.
 -->
 
 <script lang="ts">
+    import { run } from 'svelte/legacy';
+
     import type { Operand } from "../messages/Operand";
     import BinaryMutator from "../mutators/BinaryMutator";
     import { currentSource, currentTarget } from "../stores";
@@ -12,12 +14,16 @@ A drop target for direct-manipulation objects.
         default: { target: boolean; hint: string | null };
     }
 
-    export let operand: Operand;
-    export let alwaysTarget: boolean = false;
+    interface Props {
+        operand: Operand;
+        alwaysTarget?: boolean;
+        children?: import('svelte').Snippet<[any]>;
+    }
 
-    let dropHint: string | null = null;
-    let target = false;
-    $: target = match($currentTarget);
+    let { operand, alwaysTarget = false, children }: Props = $props();
+
+    let dropHint: string | null = $state(null);
+    let target = $state(false);
 
     function match(target: Operand | null): boolean {
         return (
@@ -61,17 +67,20 @@ A drop target for direct-manipulation objects.
         $currentTarget = null;
         dropHint = null;
     }
+    run(() => {
+        target = match($currentTarget);
+    });
 </script>
 
 <div
     role="presentation"
     class="zone"
     class:hint={dropHint}
-    on:dragenter={onDragOver}
-    on:dragover={onDragOver}
-    on:dragleave={onDragLeave}
-    on:drop={onDrop}>
-    <slot {target} hint={dropHint} />
+    ondragenter={onDragOver}
+    ondragover={onDragOver}
+    ondragleave={onDragLeave}
+    ondrop={onDrop}>
+    {@render children?.({ target, hint: dropHint, })}
 </div>
 
 <style>

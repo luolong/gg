@@ -4,7 +4,11 @@
     import Zone from "./objects/Zone.svelte";
     import { currentTarget } from "./stores";
 
-    export let line: EnhancedLine;
+    interface Props {
+        line: EnhancedLine;
+    }
+
+    let { line }: Props = $props();
 
     let isMerge = line.type == "ToIntersection";
     let allowEarlyBreak = line.type == "FromNode";
@@ -16,15 +20,15 @@
     let operand: Operand = { type: "Parent", header: line.parent, child: line.child };
 
     // draw path downward, from child to parent
-    let path: string;
+    let path: string = $state();
 
     let childY = r1 * 30 + 21;
     let parentY = r2 * 30 + 9;
 
-    let blockX: number;
-    let blockY: number;
-    let blockW: number;
-    let blockH: number;
+    let blockX: number = $state();
+    let blockY: number = $state();
+    let blockW: number = $state();
+    let blockH: number = $state();
 
     if (isMerge) {
         // instead of a parent, we have a mergepoint
@@ -77,9 +81,11 @@
 
 {#if !line.indirect}
     <foreignObject x={blockX} y={blockY} width={blockW} height={blockH}>
-        <Zone {operand} let:target>
-            <div class="backdrop" class:target />
-        </Zone>
+        <Zone {operand} >
+            {#snippet children({ target })}
+                        <div class="backdrop" class:target></div>
+                                {/snippet}
+                </Zone>
     </foreignObject>
 {/if}
 

@@ -6,8 +6,19 @@
         default: CustomEvent<void>;
     }
 
-    export let title: string;
-    export let error: boolean = false;
+    interface Props {
+        title: string;
+        error?: boolean;
+        children?: import('svelte').Snippet;
+        commands?: import('svelte').Snippet;
+    }
+
+    let {
+        title,
+        error = false,
+        children,
+        commands
+    }: Props = $props();
 
     let dispatch = createEventDispatcher();
 
@@ -31,11 +42,11 @@
     <h3 id="dialog-header" class:error>{title}</h3>
 
     <div id="dialog-content">
-        <slot />
+        {@render children?.()}
     </div>
 
     <div id="dialog-commands">
-        <slot name="commands" />
+        {@render commands?.()}
     </div>
 </div>
 

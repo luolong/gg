@@ -1,13 +1,19 @@
 <script lang="ts">
     import { hasModal } from "../stores";
+    interface Props {
+        header?: import('svelte').Snippet;
+        body?: import('svelte').Snippet;
+    }
+
+    let { header, body }: Props = $props();
 </script>
 
 <section inert={$hasModal}>
     <div class="header">
-        <slot name="header" />
+        {@render header?.()}
     </div>
     <div class="body">
-        <slot name="body" />
+        {@render body?.()}
     </div>
 </section>
 

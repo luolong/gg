@@ -10,9 +10,13 @@
         response: CustomEvent<InputResponse>;
     }
 
-    export let title: string;
-    export let detail: String;
-    export let fields: InputField[];
+    interface Props {
+        title: string;
+        detail: String;
+        fields: InputField[];
+    }
+
+    let { title, detail, fields }: Props = $props();
 
     let dispatch = createEventDispatcher();
 
@@ -66,10 +70,12 @@
             <input id="field-{field.label}" type="text" autoCapitalize="off" autoCorrect="off" />
         {/if}
     {/each}
-    <svelte:fragment slot="commands">
-        <ActionWidget safe onClick={onEnter}>Enter</ActionWidget>
-        <ActionWidget safe onClick={onCancel}>Cancel</ActionWidget>
-    </svelte:fragment>
+    {#snippet commands()}
+    
+            <ActionWidget safe onClick={onEnter}>Enter</ActionWidget>
+            <ActionWidget safe onClick={onCancel}>Cancel</ActionWidget>
+        
+    {/snippet}
 </ModalDialog>
 
 <style>

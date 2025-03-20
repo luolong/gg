@@ -12,20 +12,32 @@ Abstraction of dubious utility - it's only used in one place, because most IPC d
         default: { data: T };
     }
 
-    export let query: Query<T>;
+    interface Props {
+        query: Query<T>;
+        wait?: import('svelte').Snippet;
+        error?: import('svelte').Snippet<[any]>;
+        children?: import('svelte').Snippet<[any]>;
+    }
+
+    let {
+        query,
+        wait,
+        error,
+        children
+    }: Props = $props();
 
     let type = query.type;
 </script>
 
 {#key query}
     {#if query.type == "wait"}
-        <slot name="wait" />
+        {@render wait?.()}
     {:else if query.type == "error"}
-        <slot name="error" message={query.message}>
+        {#if error}{@render error({ message: query.message, })}{:else}
             <span class="red">{query.message}</span>
-        </slot>
+        {/if}
     {:else}
-        <slot data={query.value} />
+        {@render children?.({ data: query.value, })}
     {/if}
 {/key}
 
